@@ -102,13 +102,11 @@
 
 <!-- 2. AREA BACA KOMIK (SEAMLESS & LAZY LOAD) -->
 <div class="row justify-content-center mb-5">
-    <div class="col-md-8 col-lg-7 p-0 shadow-lg manga-reader-container" style="background-color: #000000; border-radius: 8px; overflow: hidden;" id="readerArea">
+    <div class="col-md-8 col-lg-7 p-0 shadow-lg manga-reader-container d-flex flex-column" style="background-color: #000000; border-radius: 8px; overflow: hidden;" id="readerArea">
         @forelse($chapter->pages->sortBy('page_number') as $page)
-            <div class="page-wrapper">
-                <img src="{{ asset($page->image_path) }}" class="img-fluid w-100 d-block m-0 p-0 reader-img manga-image" alt="Halaman {{ $page->page_number }}" loading="lazy">
-            </div>
+            <img src="{{ asset($page->image_path) }}" class="img-fluid w-100 d-block m-0 p-0 reader-img manga-image border-0" style="vertical-align: top;" alt="Halaman {{ $page->page_number }}" loading="lazy">
         @empty
-            <div class="p-5 text-center text-muted" style="background-color: #1a1a1a; min-height: 50vh; display: flex; align-items: center; justify-content: center;">
+            <div class="p-5 text-center text-muted w-100" style="background-color: #1a1a1a; min-height: 50vh; display: flex; align-items: center; justify-content: center;">
                 <h5 class="mb-0">Belum ada gambar yang diunggah untuk chapter ini.</h5>
             </div>
         @endforelse
