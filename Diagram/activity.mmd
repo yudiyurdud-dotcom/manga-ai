@@ -1,0 +1,48 @@
+flowchart TD
+    %% Pengaturan Gaya Standar UML
+    classDef startEnd fill:#2b2b2b,stroke:#fff,stroke-width:2px,color:#fff,shape:circle;
+    classDef action fill:#1e1e1e,stroke:#0d6efd,stroke-width:2px,color:#fff,shape:rect;
+    classDef decision fill:#1e1e1e,stroke:#ffc107,stroke-width:2px,color:#fff,shape:diamond;
+    classDef swimlane fill:transparent,stroke:#555,stroke-width:2px,stroke-dasharray: 5 5;
+
+    %% SWIMLANE 1: PENGGUNA
+    subgraph SG_User ["Pengguna (Pembaca)"]
+        direction TB
+        Start((( ))):::startEnd --> Input[Memasukkan deskripsi cerita komik]:::action
+        Input --> Klik[Mengklik tombol 'Eksekusi AI']:::action
+        Lihat[Melihat daftar rekomendasi komik]:::action --> End((( ))):::startEnd
+    end
+
+    %% SWIMLANE 2: WEB SERVER (LARAVEL)
+    subgraph SG_Laravel ["Web Server (Laravel)"]
+        direction TB
+        Terima[Menerima request pencarian]:::action --> TarikAll[Menarik seluruh data sinopsis dari DB]:::action
+        TarikAll --> SusunPayload[Menyusun array JSON sinopsis]:::action
+        SusunPayload --> KirimAPI[Mengirim HTTP POST ke API Python]:::action
+        
+        TerimaHasil[Menerima JSON ID Komik & Skor]:::action --> TarikFinal[Query detail komik dari DB berdasarkan ID]:::action
+        TarikFinal --> Render[Merender View dengan data komik]:::action
+    end
+
+    %% SWIMLANE 3: AI SERVICE (PYTHON)
+    subgraph SG_Python ["AI Service (Python)"]
+        direction TB
+        Ekstrak[Mengekstrak kueri dan list sinopsis]:::action --> Vektor[Mengubah teks menjadi Vektor Numerik TF-IDF]:::action
+        Vektor --> Hitung[Menghitung Nilai Cosine Similarity]:::action
+        Hitung --> Filter{Apakah Skor > 0.1?}:::decision
+        
+        Filter -- Ya --> Simpan[Simpan ID Komik ke List Hasil]:::action
+        Filter -- Tidak --> Abaikan[Abaikan komik tersebut]:::action
+        
+        Simpan --> Kembalikan[Mengembalikan HTTP Response JSON]:::action
+        Abaikan --> Kembalikan
+    end
+
+    %% ALUR LINTAS SWIMLANE (Cross-Functional Flow)
+    Klik --> Terima
+    KirimAPI --> Ekstrak
+    Kembalikan --> TerimaHasil
+    Render --> Lihat
+
+    %% Styling batas swimlane
+    class SG_User,SG_Laravel,SG_Python swimlane

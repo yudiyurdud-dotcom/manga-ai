@@ -1,0 +1,58 @@
+flowchart LR
+    %% Pengaturan Gaya Standar UML
+    classDef actor fill:transparent,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef usecase fill:#1e1e1e,stroke:#0d6efd,stroke-width:2px,color:#fff,shape:ellipse;
+    classDef systemBox fill:transparent,stroke:#555,stroke-width:2px,stroke-dasharray: 5 5;
+
+    %% Aktor (Diletakkan di luar System Boundary)
+    Admin((Admin)):::actor
+    User((User / Pembaca)):::actor
+
+    %% System Boundary (Kotak Batasan Sistem)
+    subgraph Sistem Informasi Manga Online
+        direction TB
+        
+        %% Use Case Utama (Bentuk Oval)
+        UC_Login([Login / Autentikasi]):::usecase
+        
+        %% Use Case Khusus Admin
+        UC_KelolaKomik([Mengelola Data Komik CRUD]):::usecase
+        UC_KelolaChapter([Mengelola Chapter & Gambar]):::usecase
+        UC_KelolaIklan([Mengelola Iklan]):::usecase
+        UC_Moderasi([Memoderasi Laporan & Komentar]):::usecase
+        
+        %% Use Case Khusus User
+        UC_Baca([Membaca Komik]):::usecase
+        UC_Library([Mengelola Library Bookmark]):::usecase
+        UC_Komentar([Mengirim Komentar]):::usecase
+        
+        %% Induk Pencarian dan Anaknya
+        UC_Cari([Mencari Komik]):::usecase
+        UC_CariAI([Pencarian Cerdas AI Semantic]):::usecase
+        UC_CariFilter([Pencarian Filter Lanjutan]):::usecase
+    end
+
+    %% Relasi Asosiasi (Garis lurus biasa) - Admin
+    Admin --- UC_KelolaKomik
+    Admin --- UC_KelolaChapter
+    Admin --- UC_KelolaIklan
+    Admin --- UC_Moderasi
+
+    %% Relasi Asosiasi - User
+    User --- UC_Baca
+    User --- UC_Cari
+    User --- UC_Library
+    User --- UC_Komentar
+    User --- UC_Login
+
+    %% Relasi <<include>> (Syarat Wajib: Harus login untuk bisa mengelola / komentar)
+    UC_KelolaKomik -. "<<include>>" .-> UC_Login
+    UC_KelolaChapter -. "<<include>>" .-> UC_Login
+    UC_KelolaIklan -. "<<include>>" .-> UC_Login
+    UC_Moderasi -. "<<include>>" .-> UC_Login
+    UC_Komentar -. "<<include>>" .-> UC_Login
+    UC_Library -. "<<include>>" .-> UC_Login
+
+    %% Relasi <<extend>> (Opsi Tambahan: Pencarian bisa diperluas dengan AI atau Filter)
+    UC_CariAI -. "<<extend>>" .-> UC_Cari
+    UC_CariFilter -. "<<extend>>" .-> UC_Cari

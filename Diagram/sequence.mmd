@@ -1,0 +1,93 @@
+sequenceDiagram
+    autonumber
+    
+    actor P as Pembaca (User)
+    participant V as Antarmuka (View)
+    participant AC as AuthController
+    participant MC as MangaController
+    participant DB as MySQL Database
+
+    %% FASE 1: REGISTRASI AKUN
+    rect rgb(30, 30, 30)
+        Note right of P: FASE 1: REGISTRASI AKUN
+        P->>V: Membuka halaman pendaftaran & mengisi form
+        activate V
+        V->>AC: HTTP POST /register (Nama, Email, Password)
+        activate AC
+        
+        AC->>DB: INSERT INTO users
+        activate DB
+        DB-->>AC: Akun berhasil dibuat
+        deactivate DB
+        
+        AC-->>V: Redirect ke Halaman Login
+        deactivate AC
+        V-->>P: Menampilkan pesan sukses & Form Login
+        deactivate V
+    end
+
+    %% FASE 2: LOGIN & AUTENTIKASI
+    rect rgb(40, 40, 40)
+        Note right of P: FASE 2: LOGIN & AUTENTIKASI
+        P->>V: Submit Form Login (Email, Password)
+        activate V
+        V->>AC: HTTP POST /login
+        activate AC
+        
+        AC->>DB: Query SELECT user WHERE email & password cocok
+        activate DB
+        DB-->>AC: Return User Data
+        deactivate DB
+        
+        alt Kredensial Valid
+            AC->>AC: Membuat Session Auth (Otentikasi Berhasil)
+            AC-->>V: Redirect ke Beranda Katalog
+            V-->>P: Menampilkan Dasbor/Beranda Utama
+        else Kredensial Tidak Valid
+            AC-->>V: Redirect back dengan Session Error
+            V-->>P: Menampilkan Pesan Error (Email/Password salah)
+        end
+        deactivate AC
+        deactivate V
+    end
+
+    %% FASE 3: MEMBACA KOMIK & SIMPAN RIWAYAT
+    rect rgb(30, 30, 30)
+        Note right of P: FASE 3: MEMBACA KOMIK & SIMPAN RIWAYAT
+        P->>V: Memilih komik & mengklik salah satu Chapter
+        activate V
+        V->>MC: HTTP GET /manga/{slug}/chapter/{id}
+        activate MC
+        
+        MC->>DB: Query Detail Chapter beserta relasi tabel Pages (Gambar)
+        activate DB
+        DB-->>MC: Return Data Chapter & Array Gambar
+        deactivate DB
+        
+        Note right of MC: Sistem Otomatis Mencatat Riwayat Baca
+        MC->>DB: UPDATE / INSERT INTO reading_histories
+        activate DB
+        DB-->>MC: Riwayat berhasil disimpan
+        deactivate DB
+        
+        MC-->>V: return view('manga.read', compact('chapter'))
+        deactivate MC
+        V-->>P: Menampilkan halaman baca (halaman gambar komik)
+        deactivate V
+    end
+
+    %% FASE 4: LOGOUT
+    rect rgb(40, 40, 40)
+        Note right of P: FASE 4: LOGOUT PENGGUNA
+        P->>V: Mengklik tombol Logout dari dropdown profil
+        activate V
+        V->>AC: HTTP POST /logout
+        activate AC
+        
+        AC->>AC: Menghapus Session Auth (Destroy)
+        AC-->>V: Redirect ke halaman utama (Guest mode)
+        deactivate AC
+        
+        V-->>P: Menampilkan halaman utama tanpa status login
+        deactivate V
+    end
