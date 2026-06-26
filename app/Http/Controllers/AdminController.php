@@ -60,27 +60,29 @@ class AdminController extends Controller
 
     // Menyimpan data komik baru dan mengunggah gambar
     public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'status' => 'required|in:ongoing,completed,hiatus',
-            'cover_image' => 'nullable|image|max:2048'
-        ]);
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'status' => 'required|in:ongoing,completed,hiatus',
+        'cover_image' => 'nullable|image|max:2048'
+    ]);
 
-        $data = $request->except(['cover_image', 'genres']);
-        $data['slug'] = \Illuminate\Support\Str::slug($request->title) . '-' . time();
+    $data = $request->except(['cover_image', 'genres']);
+    
+    // PERBAIKAN: Menghapus . '-' . time() agar URL bersih hanya berisi judul komik
+    $data['slug'] = \Illuminate\Support\Str::slug($request->title);
 
-        if ($request->hasFile('cover_image')) {
-            $data['cover_image'] = $request->file('cover_image')->store('covers', 'public');
-        }
-
-        $manga = \App\Models\Manga::create($data);
-
-        // LOGIKA TAGIFY: Menyimpan dan membuat genre baru secara dinamis
-        $this->syncGenres($manga, $request->genres);
-
-        return redirect()->route('admin.manga.index')->with('success', 'Komik berhasil ditambahkan!');
+    if ($request->hasFile('cover_image')) {
+        $data['cover_image'] = $request->file('cover_image')->store('covers', 'public');
     }
+
+    $manga = \App\Models\Manga::create($data);
+
+    // LOGIKA TAGIFY: Menyimpan dan membuat genre baru secara dinamis
+    $this->syncGenres($manga, $request->genres);
+
+    return redirect()->route('admin.manga.index')->with('success', 'Komik berhasil ditambahkan!');
+}
 
     // Menampilkan halaman form edit komik
     public function edit($id)
@@ -123,21 +125,31 @@ class AdminController extends Controller
 
     // Fungsi Bantuan Pribadi untuk Mengelola Genre dari Tagify
     private function syncGenres($manga, $genresInput)
-    {
-        $genreIds = [];
-        if ($genresInput) {
-            // Tagify mengirimkan data dalam bentuk JSON [{"value":"Action"}, {"value":"Isekai"}]
-            $genreData = json_decode($genresInput, true);
-            if (is_array($genreData)) {
-                foreach ($genreData as $g) {
-                    // Cek apakah genre ada, jika tidak ada maka akan otomatis DIBUAT di database
-                    $genre = \App\Models\Genre::firstOrCreate(['name' => trim($g['value'])]);
-                    $genreIds[] = $genre->id;
-                }
-            }
+{
+    $genreIds = [];
+
+    if ($genresInput) {
+        // Tagify biasanya mengirim data dalam bentuk string JSON
+        $genres = json_decode($genresInput, true);
+        
+        // Loop setiap genre yang diinputkan admin
+        foreach ($genres as $g) {
+            $genreName = $g['value']; 
+
+            // PERBAIKANNYA ADA DI SINI
+            // Kita gunakan firstOrCreate dengan 2 parameter array
+            $genre = \App\Models\Genre::firstOrCreate(
+                ['name' => $genreName], // Parameter 1: Yang dicari di database
+                ['slug' => Str::slug($genreName)] // Parameter 2: Ekstra data jika genre belum ada dan harus dibuat baru
+            );
+
+            $genreIds[] = $genre->id;
         }
-        $manga->genres()->sync($genreIds);
     }
+
+    // Sinkronisasi data ke pivot table (manga_genres)
+    $manga->genres()->sync($genreIds);
+}
 
     // Menghapus komik secara permanen beserta file cover-nya
     public function destroy($id)
