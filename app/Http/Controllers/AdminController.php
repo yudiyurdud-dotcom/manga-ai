@@ -62,10 +62,11 @@ class AdminController extends Controller
     public function store(Request $request)
 {
     $request->validate([
-        'title' => 'required|string|max:255',
-        'status' => 'required|in:ongoing,completed,hiatus',
-        'cover_image' => 'nullable|image|max:2048'
-    ]);
+    'title' => 'required|string|max:255',
+    'type' => 'required|in:Manga,Manhwa,Manhua,Comic,OEL', // Tambahkan baris ini
+    'status' => 'required|in:ongoing,completed,hiatus',
+    'cover_image' => 'nullable|image|max:2048'
+]);
 
     $data = $request->except(['cover_image', 'genres']);
     
@@ -100,10 +101,11 @@ class AdminController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'status' => 'required|in:ongoing,completed,hiatus',
-            'cover_image' => 'nullable|image|max:2048'
-        ]);
+    'title' => 'required|string|max:255',
+    'type' => 'required|in:Manga,Manhwa,Manhua,Comic,OEL', // Tambahkan baris ini
+    'status' => 'required|in:ongoing,completed,hiatus',
+    'cover_image' => 'nullable|image|max:2048'
+]);
 
         $manga = \App\Models\Manga::findOrFail($id);
         $data = $request->except(['cover_image', 'genres']);

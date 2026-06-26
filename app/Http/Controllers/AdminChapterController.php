@@ -95,7 +95,7 @@ public function index(Request $request)
             }
         }
 
-        return redirect()->route('admin.manga.index')->with('success', 'Chapter ' . $chapter->chapter_number . ' beserta ' . ($pageNumber - 1) . ' halaman berhasil diunggah!');
+        return redirect()->back()->with('success', 'Chapter berhasil diunggah! Silakan tambah chapter selanjutnya.');
     }
 
     // Menampilkan halaman edit chapter beserta gambar-gambarnya

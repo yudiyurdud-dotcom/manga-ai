@@ -65,7 +65,6 @@
                 
                 <!-- Kapsul Status, Demografi, Tema & Genre -->
                 <div class="d-flex flex-wrap gap-2 mb-4">
-                    <!-- Status -->
                     @php
                         $statusColor = 'primary'; // Default completed
                         if($manga->status == 'ongoing') $statusColor = 'success';
@@ -75,21 +74,24 @@
                         {{ $manga->status }}
                     </span>
 
-                    <!-- Demographic -->
+                    @if($manga->type)
+                        <span class="badge bg-info text-dark rounded-pill px-3 py-2 fw-bold" title="Tipe Komik">
+                            📖 {{ $manga->type }}
+                        </span>
+                    @endif
+
                     @if($manga->demographic)
                         <span class="badge bg-light text-dark rounded-pill px-3 py-2 fw-bold">
                             👥 {{ $manga->demographic }}
                         </span>
                     @endif
 
-                    <!-- Theme -->
                     @if($manga->theme)
                         @foreach(explode(',', $manga->theme) as $theme)
                             <span class="badge bg-secondary rounded-pill px-3 py-2 border border-light border-opacity-25">{{ trim($theme) }}</span>
                         @endforeach
                     @endif
 
-                    <!-- Genres -->
                     @foreach($manga->genres as $genre)
                         <span class="badge bg-dark rounded-pill px-3 py-2 border border-secondary">{{ $genre->name }}</span>
                     @endforeach
