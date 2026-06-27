@@ -32,15 +32,15 @@
         <input type="text" name="alternative_titles" class="form-control bg-dark text-white border-secondary" value="{{ old('alternative_titles') }}" placeholder="Pisahkan dengan koma jika lebih dari satu">
     </div>
     <div class="col-md-5">
-        <label class="form-label text-light fw-bold">Tipe Komik <span class="text-danger">*</span></label>
-        <select name="type" class="form-select bg-dark text-white border-secondary" required>
-            <option value="Manga" {{ old('type') == 'Manga' ? 'selected' : '' }}>Manga (Jepang)</option>
-            <option value="Manhwa" {{ old('type') == 'Manhwa' ? 'selected' : '' }}>Manhwa (Korea)</option>
-            <option value="Manhua" {{ old('type') == 'Manhua' ? 'selected' : '' }}>Manhua (China)</option>
-            <option value="Comic" {{ old('type') == 'Comic' ? 'selected' : '' }}>Comic (Barat)</option>
-            <option value="OEL" {{ old('type') == 'OEL' ? 'selected' : '' }}>OEL</option>
-        </select>
-    </div>
+    <label class="form-label text-light fw-bold">Tipe Komik <span class="text-danger">*</span></label>
+    <select name="type" class="form-select bg-dark text-white border-secondary" required>
+        <option value="Manga" {{ old('type', $manga->type) == 'Manga' ? 'selected' : '' }}>Manga (Jepang)</option>
+        <option value="Manhwa" {{ old('type', $manga->type) == 'Manhwa' ? 'selected' : '' }}>Manhwa (Korea)</option>
+        <option value="Manhua" {{ old('type', $manga->type) == 'Manhua' ? 'selected' : '' }}>Manhua (China)</option>
+        <option value="Comic" {{ old('type', $manga->type) == 'Comic' ? 'selected' : '' }}>Comic (Barat)</option>
+        <option value="OEL" {{ old('type', $manga->type) == 'OEL' ? 'selected' : '' }}>OEL</option>
+    </select>
+</div>
 </div>
 
                         <div class="row mb-4">

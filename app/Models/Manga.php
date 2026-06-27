@@ -13,7 +13,7 @@ class Manga extends Model
 
     // Tambahkan artist, theme, demographic, dan alternative_titles ke dalam array ini
     protected $fillable = [
-        'title', 'slug', 'alternative_titles', 'author', 'artist', 
+        'title', 'slug', 'alternative_titles', 'type', 'author', 'artist', 
         'synopsis', 'status', 'theme', 'demographic', 'cover_image'
     ];
 

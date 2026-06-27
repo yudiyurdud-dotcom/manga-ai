@@ -13,17 +13,16 @@
     <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
         @forelse($mangas as $manga)
             @php
-                // Logika Bendera ala MangaDex (Teks Singkatan Negara)
-                $flag = 'JP'; // Default: Jepang (Manga)
+                // Logika Bendera Dinamis berdasarkan kolom 'type'
+                // Default: Jepang (Manga)
+                $flag = 'JP'; 
                 
-                if($manga->genres) {
-                    $genreNames = $manga->genres->pluck('name')->map(fn($name) => strtolower($name))->toArray();
-                    
-                    if (in_array('manhwa', $genreNames)) {
-                        $flag = 'KR'; // Korea
-                    } elseif (in_array('manhua', $genreNames)) {
-                        $flag = 'CN'; // China
-                    }
+                if($manga->type == 'Manhwa') {
+                    $flag = 'KR'; // Korea
+                } elseif($manga->type == 'Manhua') {
+                    $flag = 'CN'; // China
+                } elseif($manga->type == 'Comic' || $manga->type == 'OEL') {
+                    $flag = 'US'; // Amerika/Barat
                 }
             @endphp
 
@@ -47,11 +46,13 @@
                             <div class="overlay position-absolute top-0 start-0 w-100 h-100 bg-dark" style="opacity: 0; transition: opacity 0.3s ease;"></div>
                         </div>
 
-                        <!-- Detail Judul (Di luar area gambar agar rapi) -->
+                        <!-- Detail Judul -->
                         <div class="pt-2">
                             <h6 class="text-white fw-bold mb-0 title-clamp">
                                 {{ $manga->title }}
                             </h6>
+                            <!-- Tambahan: Menampilkan Tipe Komik di bawah judul -->
+                            <small class="text-muted">{{ $manga->type ?? 'Manga' }}</small>
                         </div>
 
                     </div>
